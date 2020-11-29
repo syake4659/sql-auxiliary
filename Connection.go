@@ -32,7 +32,7 @@ type LoginData struct {
 	DBname   string
 }
 
-//ColumnData is Stores SQL ColumnData data.
+//ColumnData is Stores SQL Column data.
 type ColumnData struct {
 	Name            string
 	DataType        DataType
@@ -46,6 +46,12 @@ type ColumnData struct {
 	Property        interface{}
 }
 
+//TableData is Stores SQL Table data.
+type TableData struct {
+	Name    string
+	Columns []ColumnData
+}
+
 // DataType is SQL DataType
 type DataType struct {
 	TypeName       string
@@ -55,6 +61,7 @@ type DataType struct {
 	ZEROFILL       bool
 	MaxLength      int
 	DefaultPropaty string
+	AutoIncrement  bool
 }
 
 func contains(list []string, target string) bool {
@@ -68,67 +75,67 @@ func contains(list []string, target string) bool {
 
 var (
 	// TINYINT is the one that exists in SQL and can store numbers from -128 to 127. If you add UNSIGNED, you can store up to 255, but you can only use integers.
-	TINYINT = DataType{TypeName: "TINYINT", Type: "INT8", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT8"}
+	TINYINT = DataType{TypeName: "TINYINT", Type: "INT8", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT8", AutoIncrement: true}
 
 	// SMALLINT is the one that exists in SQL and can store numbers from -32768 to 32767. With UNSIGNED, you can store up to 65535, but you can only use integers.
-	SMALLINT = DataType{TypeName: "SMALLINT", Type: "INT16", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT16"}
+	SMALLINT = DataType{TypeName: "SMALLINT", Type: "INT16", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT16", AutoIncrement: true}
 
 	// MEDIUMINT is the one that exists in SQL and can store numbers from -8388608 to 8388607. With UNSIGNED, you can store up to 16777215, but you can only use integers.
-	MEDIUMINT = DataType{TypeName: "MEDIUMINT", Type: "INT32", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT32"}
+	MEDIUMINT = DataType{TypeName: "MEDIUMINT", Type: "INT32", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT32", AutoIncrement: true}
 
 	// INT is the one that exists in SQL and can store numbers from -2147483648 to 2147483647. With UNSIGNED, you can store up to 4294967295, but you can only use integers.
-	INT = DataType{TypeName: "INT", Type: "INT32", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT32"}
+	INT = DataType{TypeName: "INT", Type: "INT32", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT32", AutoIncrement: true}
 
 	// INTEGER is the one that exists in SQL and can store numbers from -2147483648 to 2147483647. With UNSIGNED, you can store up to 4294967295, but you can only use integers.
-	INTEGER = DataType{TypeName: "INTEGER", Type: "INT32", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT32"}
+	INTEGER = DataType{TypeName: "INTEGER", Type: "INT32", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT32", AutoIncrement: true}
 
 	// BIGINT is the one that exists in SQL and can store numbers from -9223372036854775808 to 9223372036854775807. With UNSIGNED, you can store up to 18446744073709551615, but you can only use integers.
-	BIGINT = DataType{TypeName: "BIGINT", Type: "INT64", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT64"}
+	BIGINT = DataType{TypeName: "BIGINT", Type: "INT64", UNSIGNED: true, ZEROFILL: true, UndignedType: "UNIT64", AutoIncrement: true}
 
 	// BOOLEAN is a type in SQL that can store True or False.
-	BOOLEAN = DataType{TypeName: "BOOLEAN", Type: "BOOL", UNSIGNED: false, ZEROFILL: false}
+	BOOLEAN = DataType{TypeName: "BOOLEAN", Type: "BOOL", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// BOOL is a type in SQL that can store True or False.
-	BOOL = DataType{TypeName: "BIGINT", Type: "BOOL", UNSIGNED: false, ZEROFILL: false}
+	BOOL = DataType{TypeName: "BIGINT", Type: "BOOL", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// BIT is a SQL type that can store bit values.
-	BIT = DataType{TypeName: "UNIT", Type: "UNIT", UNSIGNED: false, ZEROFILL: false}
+	BIT = DataType{TypeName: "UNIT", Type: "UNIT", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// FLOAT is a type that exists in SQL and can store accurate decimals up to the 7th decimal place.
-	FLOAT = DataType{TypeName: "FLOAT", Type: "FLOAT32", UNSIGNED: true, ZEROFILL: true}
+	FLOAT = DataType{TypeName: "FLOAT", Type: "FLOAT32", UNSIGNED: true, ZEROFILL: true, AutoIncrement: true}
 
 	// DOUBLE is a type that exists in SQL and can store accurate decimals up to the 7th decimal place.
-	DOUBLE = DataType{TypeName: "DOUBLE", Type: "FLOAT64", UNSIGNED: true, ZEROFILL: true}
+	DOUBLE = DataType{TypeName: "DOUBLE", Type: "FLOAT64", UNSIGNED: true, ZEROFILL: true, AutoIncrement: true}
 
 	// DATE is a type that exists in SQL. You can save the year, month, and day.
-	DATE = DataType{TypeName: "DATE", Type: "DATE", UNSIGNED: false, ZEROFILL: false}
+	DATE = DataType{TypeName: "DATE", Type: "DATE", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// DATETIME is a type that exists in SQL. You can save the year, month, day, hour, minute, and second.
-	DATETIME = DataType{TypeName: "DATETIME", Type: "DATE", UNSIGNED: false, ZEROFILL: false}
+	DATETIME = DataType{TypeName: "DATETIME", Type: "DATE", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// TIMESTAMP is a type that exists in SQL. You can save the year, month, day, hour, minute, and second. Also, if no value is explicitly assigned, the date and time will be set automatically when the value is changed.
-	TIMESTAMP = DataType{TypeName: "TIMESTAMP", Type: "DATE", UNSIGNED: false, ZEROFILL: false}
+	TIMESTAMP = DataType{TypeName: "TIMESTAMP", Type: "DATE", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// TIME is a type that exists in SQL. You can save hours, minutes, and seconds.
-	TIME = DataType{TypeName: "TIME", Type: "DATE", UNSIGNED: false, ZEROFILL: false}
+	TIME = DataType{TypeName: "TIME", Type: "DATE", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// VARCHAR is a SQL type. You can store the specified character string.
-	VARCHAR = DataType{TypeName: "VARCHAR", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 65535, DefaultPropaty: "255"}
+	VARCHAR = DataType{TypeName: "VARCHAR", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 65535, DefaultPropaty: "255", AutoIncrement: false}
 
 	// TEXT is a SQL type. You can store the specified character string.
-	TEXT = DataType{TypeName: "TEXT", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 14090025, DefaultPropaty: "255"}
+	TEXT = DataType{TypeName: "TEXT", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 14090025, DefaultPropaty: "255", AutoIncrement: false}
 
 	// MIDIUMTEXT is a SQL type. You can store the specified character string.
-	MIDIUMTEXT = DataType{TypeName: "MIDIUMTEXT", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 3741318945, DefaultPropaty: "255"}
+	MIDIUMTEXT = DataType{TypeName: "MIDIUMTEXT", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 3741318945, DefaultPropaty: "255", AutoIncrement: false}
 
 	// LONGTEXT is a SQL type. You can store the specified character string.
-	LONGTEXT = DataType{TypeName: "LONGTEXT", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 4294967295, DefaultPropaty: "255"}
+	LONGTEXT = DataType{TypeName: "LONGTEXT", Type: "STRING", UNSIGNED: false, ZEROFILL: false, MaxLength: 4294967295, DefaultPropaty: "255", AutoIncrement: false}
 
 	// ENUM is a type of SQL. Can store one of the specified string lists.
-	ENUM = DataType{TypeName: "TEXT", Type: "LIST", UNSIGNED: false, ZEROFILL: false}
+	ENUM = DataType{TypeName: "TEXT", Type: "LIST", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 
 	// SET is a type of SQL. Can store multiple in the specified string list.
-	SET = DataType{TypeName: "SET", Type: "LIST", UNSIGNED: false, ZEROFILL: false}
+	SET = DataType{TypeName: "SET", Type: "LIST", UNSIGNED: false, ZEROFILL: false, AutoIncrement: false}
 )
 
 func (err *Error) Error() string {
@@ -180,17 +187,26 @@ func (col *ColumnData) setUniqueIndex(check bool) *ColumnData {
 	return col
 }
 func (col *ColumnData) setUnsigned(check bool) *ColumnData {
-	col.Unsigned = check
+	if col.DataType.UNSIGNED {
+		col.Unsigned = check
+		return col
+	}
 	return col
 }
 
 func (col *ColumnData) setZeroFill(check bool) *ColumnData {
-	col.ZeroFill = check
+	if col.DataType.ZEROFILL {
+		col.ZeroFill = check
+		return col
+	}
 	return col
 }
 
-func (col *ColumnData) setAutoIncremental(check bool) *ColumnData {
-	col.AutoIncremental = check
+func (col *ColumnData) setAutoIncrement(check bool) *ColumnData {
+	if col.DataType.AutoIncrement {
+		col.AutoIncremental = check
+		return col
+	}
 	return col
 }
 
@@ -211,7 +227,7 @@ func (col ColumnData) build() (string, error) {
 	case "ENUM":
 		if defa := col.Property; defa != nil {
 			if res, ok := defa.([]string); ok {
-				result += fmt.Sprintf(" %v", fmt.Sprintf("ENUM(%v)", strings.Join(res, ",")))
+				result += fmt.Sprintf(" %v", fmt.Sprintf("ENUM(%v)", toSQLList(res)))
 			}
 		} else {
 			return "", &Error{Msg: "The SQL syntax could not be created successfully because the property is not set in the ENUM of the Column."}
@@ -219,13 +235,21 @@ func (col ColumnData) build() (string, error) {
 	case "SET":
 		if prop := col.Property; prop != nil {
 			if res, ok := prop.([]string); ok {
-				result += fmt.Sprintf(" %v", fmt.Sprintf("SET(%v)", strings.Join(res, ",")))
+				result += fmt.Sprintf(" %v", fmt.Sprintf("SET(%v)", toSQLList(res)))
 			}
 		} else {
 			return "", &Error{Msg: "The SQL syntax could not be created successfully because the property is not set in the SET of the Column."}
 		}
 	default:
-		result += col.DataType.TypeName
+		if prop := col.Property; prop != nil {
+			if res, ok := prop.(int); ok {
+				result += fmt.Sprintf(" %v(%v)", col.DataType.TypeName, res)
+			} else if res, ok := prop.(string); ok {
+				result += fmt.Sprintf(" %v('%v')", col.DataType.TypeName, res)
+			}
+		} else {
+			result += col.DataType.TypeName
+		}
 	}
 
 	dataType := col.DataType.TypeName
@@ -233,7 +257,9 @@ func (col ColumnData) build() (string, error) {
 		result += " NOT NULL"
 	}
 	if col.AutoIncremental {
-		result += " AUTO_INCREMENT"
+		if col.DataType.AutoIncrement {
+			result += " AUTO_INCREMENT"
+		}
 	}
 	if col.ZeroFill {
 		if col.DataType.ZEROFILL {
@@ -245,63 +271,65 @@ func (col ColumnData) build() (string, error) {
 			result += " UNSIGNED"
 		}
 	}
-	if defa := col.Default; defa != nil {
-		switch dataType {
-		case "TINYINT", "SMALLINT", "MEDIUMINT", "INT", "INTEGER", "BIGINT", "FLOAT", "DOUBLE":
-			if col.Unsigned {
-				if res, ok := defa.(uint64); ok {
+	if !col.DataType.AutoIncrement {
+		if defa := col.Default; defa != nil {
+			switch dataType {
+			case "TINYINT", "SMALLINT", "MEDIUMINT", "INT", "INTEGER", "BIGINT", "FLOAT", "DOUBLE":
+				if col.Unsigned {
+					if res, ok := defa.(uint64); ok {
+						result += fmt.Sprintf(" %v", res)
+					} else {
+						return "", &Error{Msg: "The default value could not be successfully converted to a number."}
+					}
+				} else {
+					if res, ok := defa.(int64); ok {
+						result += fmt.Sprintf(" %v", res)
+					} else {
+						return "", &Error{Msg: "The default value could not be successfully converted to a number."}
+					}
+				}
+			case "BOOL", "BOOLEAN":
+				if res, ok := defa.(bool); ok {
 					result += fmt.Sprintf(" %v", res)
 				} else {
-					return "", &Error{Msg: "The default value could not be successfully converted to a number."}
+					return "", &Error{Msg: "The default value could not be successfully converted to Boolean."}
 				}
-			} else {
-				if res, ok := defa.(int64); ok {
-					result += fmt.Sprintf(" %v", res)
+			case "DATE":
+				if res, ok := defa.(time.Time); ok {
+					result += fmt.Sprintf(" '%v'", toSQLDate(res))
 				} else {
-					return "", &Error{Msg: "The default value could not be successfully converted to a number."}
+					return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
 				}
-			}
-		case "BOOL", "BOOLEAN":
-			if res, ok := defa.(bool); ok {
-				result += fmt.Sprintf(" %v", res)
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to Boolean."}
-			}
-		case "DATE":
-			if res, ok := defa.(time.Time); ok {
-				result += fmt.Sprintf(" '%v'", toSQLDate(res))
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
-			}
-		case "DATETIME":
-			if res, ok := defa.(time.Time); ok {
-				result += fmt.Sprintf(" '%v'", toSQLDateTime(res))
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
-			}
-		case "TIMESTAMP":
-			if res, ok := defa.(time.Time); ok {
-				result += fmt.Sprintf(" '%v'", toSQLDateTime(res))
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
-			}
-		case "TIME":
-			if res, ok := defa.(time.Time); ok {
-				result += fmt.Sprintf(" '%v'", toSQLTime(res))
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
-			}
-		case "TEXT", "VARCHAR", "MIDIUMTEXT", "LONGTEXT", "ENUM":
-			if res, ok := defa.(string); ok {
-				result += fmt.Sprintf(" '%v'", res)
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to String."}
-			}
-		case "SET":
-			if res, ok := defa.([]string); ok {
-				result += fmt.Sprintf(" %v", fmt.Sprintf("'%v'", strings.Join(res, ",")))
-			} else {
-				return "", &Error{Msg: "The default value could not be successfully converted to List."}
+			case "DATETIME":
+				if res, ok := defa.(time.Time); ok {
+					result += fmt.Sprintf(" '%v'", toSQLDateTime(res))
+				} else {
+					return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
+				}
+			case "TIMESTAMP":
+				if res, ok := defa.(time.Time); ok {
+					result += fmt.Sprintf(" '%v'", toSQLDateTime(res))
+				} else {
+					return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
+				}
+			case "TIME":
+				if res, ok := defa.(time.Time); ok {
+					result += fmt.Sprintf(" '%v'", toSQLTime(res))
+				} else {
+					return "", &Error{Msg: "The default value could not be successfully converted to time.Time."}
+				}
+			case "TEXT", "VARCHAR", "MIDIUMTEXT", "LONGTEXT", "ENUM":
+				if res, ok := defa.(string); ok {
+					result += fmt.Sprintf(" '%v'", res)
+				} else {
+					return "", &Error{Msg: "The default value could not be successfully converted to String."}
+				}
+			case "SET":
+				if res, ok := defa.([]string); ok {
+					result += fmt.Sprintf(" %v", toSQLList(res))
+				} else {
+					return "", &Error{Msg: "The default value could not be successfully converted to List."}
+				}
 			}
 		}
 	}
@@ -318,4 +346,12 @@ func toSQLDateTime(val time.Time) string {
 
 func toSQLTime(val time.Time) string {
 	return fmt.Sprintf("%v:%v:%v", val.Hour(), val.Minute(), val.Second())
+}
+
+func toSQLList(val []string) string {
+	tmp := []string{}
+	for _, value := range val {
+		tmp = append(tmp, fmt.Sprintf("'%v'", string(value)))
+	}
+	return strings.Join(tmp, ",")
 }
