@@ -1,4 +1,4 @@
-package main
+package sqlow
 
 import (
 	"database/sql"
@@ -10,26 +10,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var supportSQL = []string{"mysql"}
-
-type sqlData struct {
-	SQLType   string
-	Database  *sql.DB
-	LoginAuth *LoginData
+// DB is data struct
+type DB struct {
+	Database *sql.DB
+	DBName   string
 }
 
 // Error is Original Error
 type Error struct {
 	Msg string
-}
-
-// LoginData is the information required to login is saved.
-type LoginData struct {
-	UserName string
-	Password string
-	Host     string
-	Port     int
-	DBname   string
 }
 
 //ColumnData is Stores SQL Column data.
@@ -144,51 +133,44 @@ func (err *Error) Error() string {
 	return fmt.Sprintf("Does not support the following SQL: %s", err.Msg)
 }
 
-func connect(sqlType string, user string, password string, host string, port int, dbname string) (sqlData, error) {
-	sqlType = strings.ToUpper(sqlType)
-	sqldata := sqlData{}
-	if result := contains(supportSQL, sqlType); !result {
-		return sqldata, &Error{Msg: sqlType}
+// New returns sqlow.Data if sql.DB already exists.
+func New(db *sql.DB, dbname string) DB {
+	return DB{
+		DBName:   dbname,
+		Database: db,
 	}
-	db, err := sql.Open(sqlType, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", user, password, host, port, dbname))
-	if err == nil {
-		sqldata.Database = db
-		sqldata.SQLType = sqlType
-		sqldata.LoginAuth = &LoginData{
-			UserName: user,
-			Password: password,
-			Host:     host,
-			Port:     port,
-			DBname:   dbname,
-		}
-		return sqldata, nil
-	}
-	return sqldata, err
 }
 
-func (data sqlData) Ping() error {
+// Ping is Ping to SQL
+func (data DB) Ping() error {
 	return data.Database.Ping()
 }
 
-func (data sqlData) Close() error {
+// Close is close the connection to SQL.
+func (data DB) Close() error {
 	return data.Database.Close()
 }
 
-func (col *ColumnData) setPrimaryKey(check bool) *ColumnData {
+// SetPrimaryKey can be set by passing Boolean whether to set Column to PrimaryKey
+func (col *ColumnData) SetPrimaryKey(check bool) *ColumnData {
 	col.PrimaryKey = check
 	return col
 }
 
-func (col *ColumnData) setNotNull(check bool) *ColumnData {
+// SetNotNull can be set by passing Boolean whether to set Column to SetNotNull
+func (col *ColumnData) SetNotNull(check bool) *ColumnData {
 	col.NotNull = check
 	return col
 }
 
-func (col *ColumnData) setUniqueIndex(check bool) *ColumnData {
+// SetUniqueIndex can be set by passing Boolean whether to set Column to SetUniqueIndex
+func (col *ColumnData) SetUniqueIndex(check bool) *ColumnData {
 	col.UniqueIndex = check
 	return col
 }
-func (col *ColumnData) setUnsigned(check bool) *ColumnData {
+
+// SetUnsigned can be set by passing Boolean whether to set Column to SetUnsigned
+func (col *ColumnData) SetUnsigned(check bool) *ColumnData {
 	if col.DataType.UNSIGNED {
 		col.Unsigned = check
 		return col
@@ -196,7 +178,8 @@ func (col *ColumnData) setUnsigned(check bool) *ColumnData {
 	return col
 }
 
-func (col *ColumnData) setZeroFill(check bool) *ColumnData {
+// SetZeroFill can be set by passing Boolean whether to set Column to SetZeroFill
+func (col *ColumnData) SetZeroFill(check bool) *ColumnData {
 	if col.DataType.ZEROFILL {
 		col.ZeroFill = check
 		return col
@@ -204,7 +187,8 @@ func (col *ColumnData) setZeroFill(check bool) *ColumnData {
 	return col
 }
 
-func (col *ColumnData) setAutoIncrement(check bool) *ColumnData {
+// SetAutoIncrement can be set by passing Boolean whether to set Column to SetAutoIncrement
+func (col *ColumnData) SetAutoIncrement(check bool) *ColumnData {
 	if col.DataType.AutoIncrement {
 		col.AutoIncremental = check
 		return col
@@ -212,7 +196,8 @@ func (col *ColumnData) setAutoIncrement(check bool) *ColumnData {
 	return col
 }
 
-func (col *ColumnData) setDefault(value interface{}) *ColumnData {
+// SetDefault can be set by passing Boolean whether to set Column to SetDefault
+func (col *ColumnData) SetDefault(value interface{}) *ColumnData {
 	col.Default = value
 	return col
 }
@@ -223,7 +208,8 @@ func Column(name string, dataType DataType) *ColumnData {
 	return &column
 }
 
-func (tab TableData) build() (string, error) {
+// Build is Converts table data to SQL syntax.
+func (tab TableData) Build() (string, error) {
 	autoIncrement := false
 	columns := tab.Columns
 	name := tab.Name
@@ -244,7 +230,7 @@ func (tab TableData) build() (string, error) {
 		if i.UniqueIndex {
 			uniqueIndex = append(uniqueIndex, i.Name)
 		}
-		r, err := i.build()
+		r, err := i.Build()
 		if err != nil {
 			return "", err
 		}
@@ -263,7 +249,8 @@ func (tab TableData) build() (string, error) {
 	return result, nil
 }
 
-func (col ColumnData) build() (string, error) {
+// Build is Converts column data to SQL syntax.
+func (col ColumnData) Build() (string, error) {
 	result := fmt.Sprintf("'%s' ", col.Name)
 	switch col.DataType.TypeName {
 	case "ENUM":
