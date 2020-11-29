@@ -1,4 +1,4 @@
-# sql-connection-go
+# sql-auxiliary
 
 # <font color="Red">WARNING: Currently incomplete and will not work.</font>
 
