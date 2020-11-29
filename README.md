@@ -1,4 +1,4 @@
-# sql-auxiliary
+# sqlow
 
 # <font color="Red">WARNING: Currently incomplete and will not work.</font>
 
